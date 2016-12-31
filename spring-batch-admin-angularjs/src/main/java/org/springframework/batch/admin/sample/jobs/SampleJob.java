@@ -106,7 +106,7 @@ public class SampleJob {
 			System.out.println("Tasklet was executed");
 
 			ThreadContext.put("logFileName", "David");
-			log.info("Tasklet was executed !!!!!!!!!!!!!!!!!");
+			log.info("Tasklet was executed");
 
 			ThreadContext.remove("logFileName");
 
