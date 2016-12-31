@@ -17,9 +17,11 @@ package org.springframework.batch.admin.sample;
 
 import org.springframework.batch.admin.annotation.EnableBatchAdmin;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.EndpointMBeanExportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.hateoas.HypermediaAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.MultipartAutoConfiguration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 /**
  * <p>Spring Boot launching point for Spring Batch Admin.</p>
@@ -28,6 +30,7 @@ import org.springframework.boot.autoconfigure.web.MultipartAutoConfiguration;
  */
 @SpringBootApplication(exclude = {HypermediaAutoConfiguration.class, MultipartAutoConfiguration.class})
 @EnableBatchAdmin
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 public class Main {
 
 	public static void main(String [] args) {

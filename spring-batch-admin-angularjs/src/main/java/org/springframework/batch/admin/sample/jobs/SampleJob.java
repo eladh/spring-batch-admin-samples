@@ -15,19 +15,20 @@
  */
 package org.springframework.batch.admin.sample.jobs;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+		import org.springframework.batch.core.*;
+		import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+		import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+		import org.springframework.batch.core.configuration.annotation.StepScope;
+		import org.springframework.batch.core.scope.context.ChunkContext;
+		import org.springframework.batch.core.step.tasklet.Tasklet;
+		import org.springframework.batch.repeat.RepeatStatus;
+		import org.springframework.beans.factory.annotation.Autowired;
+		import org.springframework.beans.factory.annotation.Value;
+		import org.springframework.context.annotation.Bean;
+		import org.springframework.context.annotation.Configuration;
+		import org.apache.logging.log4j.LogManager;
+		import org.apache.logging.log4j.Logger;
+		import org.apache.logging.log4j.ThreadContext;
 
 /**
  * Sample Spring Batch Job.  This job takes a single, optional, job parameter: fail.  If
@@ -44,6 +45,26 @@ public class SampleJob {
 	@Autowired
 	public StepBuilderFactory stepBuilderFactory;
 
+	private final static Logger log = LogManager.getLogger(SampleJob.class);
+
+
+	@Bean
+	public StepExecutionListener taskletlStepListener() {
+		return new StepExecutionListener() {
+			@Override
+			public void beforeStep(StepExecution stepExecution) {
+				log.debug("taskletlStepListener beforeStep");
+			}
+
+			@Override
+			public ExitStatus afterStep(StepExecution stepExecution) {
+				log.debug("taskletlStepListener afterStep");
+				return null;
+			}
+		};
+	}
+
+
 	@Bean
 	@StepScope
 	public FailableTasklet tasklet(@Value("#{jobParameters[fail]}") Boolean failable) {
@@ -58,6 +79,7 @@ public class SampleJob {
 	@Bean
 	public Step step() {
 		return stepBuilderFactory.get("step")
+				.listener(taskletlStepListener())
 				.tasklet(tasklet(null)).build();
 	}
 
@@ -70,6 +92,9 @@ public class SampleJob {
 
 	public static class FailableTasklet implements Tasklet {
 
+
+		private final static Logger log = LogManager.getLogger(FailableTasklet.class);
+
 		private final boolean fail;
 
 		public FailableTasklet(boolean fail) {
@@ -79,6 +104,12 @@ public class SampleJob {
 		@Override
 		public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 			System.out.println("Tasklet was executed");
+
+			ThreadContext.put("logFileName", "David");
+			log.info("Tasklet was executed !!!!!!!!!!!!!!!!!");
+
+			ThreadContext.remove("logFileName");
+
 
 			if(fail) {
 				throw new RuntimeException("This exception was expected");
